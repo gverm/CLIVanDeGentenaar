@@ -23,6 +23,7 @@ python app.py
 Run cli
 
 ```
+npm i
 npx tsc
 chmod -R 777 ./build
 ./build/cli.js search <query>
