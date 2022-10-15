@@ -4,7 +4,7 @@ import PIL.Image
 ASCII_CHARS = ["@", "#", "＄", "%", "?", "*", "+", ";", ":", ",", "."]
 
 
-def resize(image, new_width = 100):
+def resize(image, new_width=100):
     old_width, old_height = image.size
     new_height = new_width * old_height / old_width
     return image.resize((int(new_width), int(new_height)))
@@ -18,7 +18,7 @@ def pixel_to_ascii(image):
     pixels = image.getdata()
     ascii_str = ""
     for pixel in pixels:
-        ascii_str += ASCII_CHARS[pixel//25]
+        ascii_str += ASCII_CHARS[pixel // 25]
     return ascii_str
 
 
@@ -36,7 +36,7 @@ def main():
     ascii_str_len = len(ascii_str)
     ascii_img = ""
     for i in range(0, ascii_str_len, img_width):
-        ascii_img += ascii_str[i:i+img_width] + "\n"
+        ascii_img += ascii_str[i : i + img_width] + "\n"
     with open(f"{os.path.splitext(path)[0]}.txt", "w") as f:
         f.write(ascii_img)
 
