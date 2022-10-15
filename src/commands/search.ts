@@ -1,5 +1,6 @@
 import type { Arguments, CommandBuilder } from "yargs"
 import fetch from "cross-fetch"
+const inquirer = require("inquirer")
 
 type Options = {
   query: string
@@ -13,6 +14,8 @@ export const builder: CommandBuilder<Options, Options> = (yargs) =>
 
 export const handler = async (argv: Arguments<Options>): Promise<void> => {
   const { query } = argv
+
+  //Search web portal
   process.stdout.write(`Searching for ${query}!\n`)
   const res = await fetch("https://data.collectie.gent/api/graphql", {
     headers: {
@@ -37,21 +40,50 @@ export const handler = async (argv: Arguments<Options>): Promise<void> => {
     method: "POST",
   })
   const results = await res.json()
+
+  //Get first item from results
   const asset = results.data.Entities.results[0]
-  process.stdout.write(`${asset.title[0].value}\n`)
+
+  //Write link to webportal
   process.stdout.write(
     `https://data.collectie.gent/entity/${asset.object_id}\n`
   )
+
+  //Get ascii art
+  const body = `{
+    "url": "https://api.collectie.gent/storage/v1/download/${asset.primary_transcode}"
+  }`
+
   const asciiRep = await fetch(`http://localhost:5000/asciiart`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: `{
-      "url": "https://api.collectie.gent/storage/v1/download/${asset.primary_transcode}"
-    }`,
+    body,
   })
   const ascii = await asciiRep.json()
   process.stdout.write(ascii.toString())
+
+  //Load tenserflow options
+  const tensorRep = await fetch(`http://localhost:5000/annotate`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body,
+  })
+  const tensor = await tensorRep.json()
+  inquirer
+    .prompt([
+      {
+        name: "Wat zie je op de afbeelding?",
+        type: "checkbox",
+        message: "Wat zie je op de afbeelding?",
+        choices: tensor,
+      },
+    ])
+    .then((answers: any) => {
+      process.stdout.write(answers.imageContent)
+    })
   process.exit(0)
 }
