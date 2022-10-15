@@ -3,14 +3,15 @@ from tensorflow.keras.preprocessing import image
 from tensorflow.keras.applications.resnet50 import preprocess_input, decode_predictions
 import numpy as np
 
-model = ResNet50(weights='imagenet')
+model = ResNet50(weights="imagenet")
 
-class Detector():
+
+class Detector:
     def detect(self, image_path):
         preds = model.predict(self._load_image(image_path))
         # decode the results into a list of tuples (class, description, probability)
         # (one such list for each sample in the batch)
-        #print('Predicted:', decode_predictions(preds, top=3)[0])
+        # print('Predicted:', decode_predictions(preds, top=3)[0])
         decoded_predictions = decode_predictions(preds, top=5)[0]
         parsed_decoded_predictions = list()
         for decoded_prediction in decoded_predictions:

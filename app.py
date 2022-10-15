@@ -48,6 +48,7 @@ class AsciiArt(Resource):
         logger.info(ascii_string)
         return ascii_string, 201
 
+
 class GetImageAnnotations(Resource):
     def __get_request_body(self):
         if request_body := request.get_json(silent=True):
@@ -57,7 +58,8 @@ class GetImageAnnotations(Resource):
     def post(self):
         url = self.__get_request_body()["url"]
         fetcher.download_image(url)
-        return detector.detect('/tmp/tmpfile.jpg')
+        return detector.detect("/tmp/tmpfile.jpg")
+
 
 api.add_resource(AsciiArt, "/asciiart")
 api.add_resource(GetImageAnnotations, "/annotate")
