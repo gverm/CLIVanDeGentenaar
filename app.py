@@ -95,7 +95,7 @@ class GetImageAnnotations(Resource):
 
 api.add_resource(AsciiArt, "/asciiart")
 api.add_resource(GetImageAnnotations, "/annotate")
-api.add_resource(Statistics, "/statistics/<object_id:string>")
+api.add_resource(Statistics, "/statistics/<string:object_id>")
 
 if __name__ == "__main__":
     app.run(debug=True)
