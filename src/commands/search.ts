@@ -1,22 +1,22 @@
-import type { Arguments, CommandBuilder } from "yargs";
-import fetch from "cross-fetch";
-const inquirer = require("inquirer");
+import type { Arguments, CommandBuilder } from "yargs"
+import fetch from "cross-fetch"
+const inquirer = require("inquirer")
 
 type Options = {
-  query: string;
-};
+  query: string
+}
 
-export const command: string = "search <query>";
-export const desc: string = "Search for <query>";
+export const command: string = "search <query>"
+export const desc: string = "Search for <query>"
 
 export const builder: CommandBuilder<Options, Options> = (yargs) =>
-  yargs.positional("query", { type: "string", demandOption: true });
+  yargs.positional("query", { type: "string", demandOption: true })
 
 export const handler = async (argv: Arguments<Options>): Promise<void> => {
-  const { query } = argv;
+  const { query } = argv
 
   //Search web portal
-  process.stdout.write(`Searching for ${query}!\n`);
+  process.stdout.write(`Searching for ${query}!\n`)
   const res = await fetch("https://data.collectie.gent/api/graphql", {
     headers: {
       accept: "*/*",
@@ -38,20 +38,20 @@ export const handler = async (argv: Arguments<Options>): Promise<void> => {
     },
     body: `{"operationName":"getEntities","variables":{"limit":25,"skip":0,"searchValue":{"value":"${query}","isAsc":false,"relation_filter":[],"randomize":false,"key":"title","has_mediafile":true,"skip_relations":false,"and_filter":false}},"query":"query getEntities($limit: Int, $skip: Int, $searchValue: SearchFilter!) {\\n  Entities(limit: $limit, skip: $skip, searchValue: $searchValue) {\\n    count\\n    limit\\n    results {\\n      ...minimalEntity\\n      __typename\\n    }\\n    relations {\\n      ...fullRelation\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n\\nfragment minimalEntity on Entity {\\n  id\\n  object_id\\n  type\\n  title: metadata(key: [title]) {\\n    key\\n    value\\n    __typename\\n  }\\n  description: metadata(key: [description]) {\\n    key\\n    value\\n    __typename\\n  }\\n  primary_mediafile\\n  primary_transcode\\n  primary_mediafile_info {\\n    width\\n    height\\n    __typename\\n  }\\n  mediafiles {\\n    mediatype {\\n      type\\n      mime\\n      image\\n      audio\\n      video\\n      pdf\\n      __typename\\n    }\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment fullRelation on Relation {\\n  key\\n  type\\n  label\\n  value\\n  order\\n  __typename\\n}\\n"}`,
     method: "POST",
-  });
-  const results = await res.json();
+  })
+  const results = await res.json()
 
   //Get first item from results
   if (!results.data.Entities.results[0]) {
-    process.stdout.write("No result \n");
-    process.exit();
+    process.stdout.write("No result \n")
+    process.exit()
   }
-  const asset = results.data.Entities.results[0];
+  const asset = results.data.Entities.results[0]
 
   //Get ascii art
   const body = `{
     "url": "https://api.collectie.gent/storage/v1/download/${asset.primary_transcode}"
-  }`;
+  }`
 
   const asciiRep = await fetch(`http://localhost:5000/asciiart`, {
     method: "POST",
@@ -59,9 +59,9 @@ export const handler = async (argv: Arguments<Options>): Promise<void> => {
       "Content-Type": "application/json",
     },
     body,
-  });
-  const ascii = await asciiRep.json();
-  process.stdout.write(ascii.toString());
+  })
+  const ascii = await asciiRep.json()
+  process.stdout.write(ascii.toString())
 
   //Load tenserflow options
   const tensorRep = await fetch(`http://localhost:5000/annotate`, {
@@ -70,8 +70,8 @@ export const handler = async (argv: Arguments<Options>): Promise<void> => {
       "Content-Type": "application/json",
     },
     body,
-  });
-  const tensor = await tensorRep.json();
+  })
+  const tensor = await tensorRep.json()
   inquirer
     .prompt([
       {
@@ -82,11 +82,13 @@ export const handler = async (argv: Arguments<Options>): Promise<void> => {
       },
     ])
     .then(async (answers: any) => {
-      process.stdout.write(`Your answer is: ${answers.imageContent.join()}\n`);
-      //Write link to webportal
-      process.stdout.write(
-        `See the real image on: \nhttps://data.collectie.gent/entity/${asset.object_id}\n`
-      );
+      process.stdout.write(`Your answer is: ${answers.imageContent.join()}\n\n`)
+
+      let stringArray = "["
+      answers.imageContent.forEach((item: string) => {
+        stringArray = stringArray + `"${item}",`
+      })
+      stringArray = stringArray.slice(0, -1) + "]"
       const statisticsRep = await fetch(
         `http://localhost:5000/statistics/${asset.object_id}`,
         {
@@ -95,19 +97,26 @@ export const handler = async (argv: Arguments<Options>): Promise<void> => {
             "Content-Type": "application/json",
           },
           body: `{
-              "answers": ${answers.imageContent}
+              "answers": ${stringArray}
             }`,
         }
-      );
-      const statistics = await statisticsRep.json();
-      statistics.forEach((statistic: any) => {
-        const stat = statistics
+      )
+      const statistics = await statisticsRep.json()
+      tensor.forEach((statistic: any) => {
+        const stat = statistics.answers
           .filter((item: string) => item === statistic)
-          .length.toString();
+          .length.toString()
         process.stdout.write(
-          statistic + " was chosen " + stat + " times before"
-        );
-      });
-      process.exit(0);
-    });
-};
+          statistic + " was chosen " + stat + " times before\n"
+        )
+      })
+      process.stdout.write(
+        `\n${statistics.count} people have answered for this asset\n`
+      )
+      //Write link to webportal
+      process.stdout.write(
+        `\nSee the real image on: \nhttps://data.collectie.gent/entity/${asset.object_id}\n`
+      )
+      process.exit(0)
+    })
+}
