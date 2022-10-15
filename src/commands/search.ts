@@ -39,8 +39,8 @@ export const handler = async (argv: Arguments<Options>): Promise<void> => {
   const results = await res.json()
   const asset = results.data.Entities.results[0]
   process.stdout.write(`${asset.title[0].value}\n`)
-  console.log(
-    `https://api.collectie.gent/storage/v1/download/${asset.primary_transcode}`
+  process.stdout.write(
+    `https://data.collectie.gent/entity/${asset.object_id}\n`
   )
   const asciiRep = await fetch(`http://localhost:5000/asciiart`, {
     method: "POST",
