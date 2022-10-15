@@ -43,7 +43,7 @@ class AsciiArt(Resource):
         with open(location, "wb") as file:
             file.write(req.content)
         ascii_string = subprocess.run(
-            ["ascii-image-converter", "--width", "238", "--height", "55", location],
+            ["ascii-image-converter", "--dimensions", "238,55", location],
             stdout=subprocess.PIPE,
         ).stdout.decode("utf-8")
         logger.info(ascii_string)
