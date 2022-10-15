@@ -49,15 +49,10 @@ class Statistics(Resource):
             )
         else:
             super_secret_database[object_id] = {"count": 1, "answers": answers}
-        return "", 201
-
-    def get(self, object_id):
-        if object_id in super_secret_database:
-            return {
-                "count": super_secret_database[object_id]["count"],
-                "answers": super_secret_database[object_id]["answers"],
-            }, 200
-        return {"count": 0, "answers": []}, 200
+        return {
+            "count": super_secret_database[object_id]["count"],
+            "answers": super_secret_database[object_id]["answers"],
+        }, 201
 
 
 class AsciiArt(Resource):
