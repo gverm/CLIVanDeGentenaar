@@ -37,8 +37,16 @@ export const handler = async (argv: Arguments<Options>): Promise<void> => {
     method: "POST",
   })
   const results = await res.json()
-  results.data.Entities.results.forEach((element: any) => {
-    process.stdout.write(`${element.title[0].value}\n`)
+  const asset = results.data.Entities.results[0]
+  process.stdout.write(`${asset.title[0].value}\n`)
+  console.log(asset.primary_transcode)
+  const asciiRep = await fetch(`http://localhost:5000/asciiart`, {
+    method: "POST",
+    body: `{
+      "url": "https://api.collectie.gent/storage/v1/download/${asset.primary_transcode}",
+    }`,
   })
+  const ascii = asciiRep.json()
+  process.stdout.write(`${ascii}\n`)
   process.exit(0)
 }
