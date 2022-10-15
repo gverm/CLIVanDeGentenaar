@@ -6,7 +6,7 @@ Browse the data-portal, hacker style 😎
 
 Create a venv, install the dependencies
 ```
-python3 -m /tmp/clivandegentenaar
+python3 -m venv /tmp/clivandegentenaar
 source /tmp/clivandegentenaar/bin/activate
 pip install -r requirements.txt
 ```
