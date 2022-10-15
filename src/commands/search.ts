@@ -42,6 +42,10 @@ export const handler = async (argv: Arguments<Options>): Promise<void> => {
   const results = await res.json()
 
   //Get first item from results
+  if (!results.data.Entities.results[0]) {
+    process.stdout.write("No result \n")
+    process.exit()
+  }
   const asset = results.data.Entities.results[0]
 
   //Write link to webportal
@@ -76,14 +80,14 @@ export const handler = async (argv: Arguments<Options>): Promise<void> => {
   inquirer
     .prompt([
       {
-        name: "Wat zie je op de afbeelding?",
+        name: "imageContent",
         type: "checkbox",
-        message: "Wat zie je op de afbeelding?",
-        choices: tensor,
+        message: "What do you see in the ASCII ?",
+        choices: [...tensor, "it's all trash."],
       },
     ])
     .then((answers: any) => {
-      process.stdout.write(answers.imageContent)
+      process.stdout.write(`Your answer is: ${answers.imageContent.join()}\n`)
+      process.exit(0)
     })
-  process.exit(0)
 }
