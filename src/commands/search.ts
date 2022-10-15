@@ -48,11 +48,6 @@ export const handler = async (argv: Arguments<Options>): Promise<void> => {
   }
   const asset = results.data.Entities.results[0]
 
-  //Write link to webportal
-  process.stdout.write(
-    `https://data.collectie.gent/entity/${asset.object_id}\n`
-  )
-
   //Get ascii art
   const body = `{
     "url": "https://api.collectie.gent/storage/v1/download/${asset.primary_transcode}"
@@ -88,6 +83,10 @@ export const handler = async (argv: Arguments<Options>): Promise<void> => {
     ])
     .then((answers: any) => {
       process.stdout.write(`Your answer is: ${answers.imageContent.join()}\n`)
+      //Write link to webportal
+      process.stdout.write(
+        `See the real image on: \nhttps://data.collectie.gent/entity/${asset.object_id}\n`
+      )
       process.exit(0)
     })
 }
