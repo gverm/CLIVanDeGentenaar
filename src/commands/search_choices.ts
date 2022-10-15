@@ -45,14 +45,14 @@ export const handler = async (argv: Arguments<Options>): Promise<void> => {
   inquirer
     .prompt([
       {
-        name: "Wat zie je op de afbeelding?",
+        name: "imageContent",
         type: "checkbox",
         message: "Wat zie je op de afbeelding?",
         choices: ["He", "Ha"],
       },
     ])
     .then((answers: any) => {
-      console.log(answers);
+      console.log(answers.imageContent);
     });
   process.exit(0);
 };
