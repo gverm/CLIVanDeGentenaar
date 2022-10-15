@@ -27,6 +27,38 @@ logger = logging.getLogger(__name__)
 detector = Detector()
 fetcher = ImageFetcher()
 
+super_secret_database = {}
+
+
+class Statistics(Resource):
+    def __get_request_body(self):
+        if request_body := request.get_json(silent=True):
+            return request_body
+        abort(405, message="Malformed request body")
+
+    def post(self, object_id):
+        body = self.__get_request_body()
+        answers = body["answers"]
+        if (
+            object_id in super_secret_database
+            and super_secret_database[object_id]["count"]
+        ):
+            super_secret_database[object_id]["answers"].extend(answers)
+            super_secret_database[object_id]["count"] = (
+                super_secret_database[object_id]["count"] + 1
+            )
+        else:
+            super_secret_database[object_id] = {"count": 1, "answers": answers}
+        return "", 201
+
+    def get(self, object_id):
+        if object_id in super_secret_database:
+            return {
+                "count": super_secret_database[object_id]["count"],
+                "answers": super_secret_database[object_id]["answers"],
+            }, 200
+        return {"count": 0, "answers": []}, 200
+
 
 class AsciiArt(Resource):
     def __get_request_body(self):
@@ -63,6 +95,7 @@ class GetImageAnnotations(Resource):
 
 api.add_resource(AsciiArt, "/asciiart")
 api.add_resource(GetImageAnnotations, "/annotate")
+api.add_resource(Statistics, "/statistics/<object_id:string>")
 
 if __name__ == "__main__":
     app.run(debug=True)
