@@ -44,5 +44,7 @@ class AsciiArt(Resource):
         return ascii_string, 201
 
 
+api.add_resource(AsciiArt, "/asciiart")
+
 if __name__ == "__main__":
     app.run(debug=True)
