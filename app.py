@@ -37,9 +37,11 @@ class AsciiArt(Resource):
         location = "/tmp/tmpfile.jpg"
         with open(location, "wb") as file:
             file.write(req.content)
-        ascii_string = subprocess.run(['ascii-image-converter', location], stdout=subprocess.PIPE)
-        logger.info(ascii_string.stdout)
-        return ascii_string.stdout, 201
+        ascii_string = subprocess.run(
+            ["ascii-image-converter", location], stdout=subprocess.PIPE
+        ).stdout.decode("utf-8")
+        logger.info(ascii_string)
+        return ascii_string, 201
 
 
 if __name__ == "__main__":
