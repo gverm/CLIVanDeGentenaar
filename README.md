@@ -13,6 +13,8 @@ pip install -r requirements.txt
 ```
 
 ## How to run
+This application depends on [ascii-image-converter](https://github.com/TheZoraiz/ascii-image-converter), make sure it's available in your PATH.
+
 
 Run the application:
 
